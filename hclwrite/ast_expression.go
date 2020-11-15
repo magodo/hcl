@@ -147,6 +147,9 @@ func (e *Expression) Variables() []*Traversal {
 // The search and replacement traversals must be the same length, or this
 // method will panic. Only attribute access operations can be matched and
 // replaced. Index steps in the existing expression will be skipped and kept.
+//
+// Especially, "*" can be used in search to match any traverse, in this case,
+// the corresponding replacement could also be "*" to keep the original traverse.
 func (e *Expression) RenameVariablePrefix(search, replacement []string) {
 	if len(search) != len(replacement) {
 		panic(fmt.Sprintf("search and replacement length mismatch (%d and %d)", len(search), len(replacement)))
@@ -172,6 +175,9 @@ Traversals:
 		for i, name := range search {
 			step:= stepAttrNodes[i].content.(*TraverseName)
 			foundNameBytes := step.name.content.(*identifier).token.Bytes
+			if name == "*" {
+				continue
+			}
 			if len(foundNameBytes) != len(name) {
 				continue Traversals
 			}
@@ -185,7 +191,9 @@ Traversals:
 		for i, name := range replacement {
 			step := stepAttrNodes[i].content.(*TraverseName)
 			token := step.name.content.(*identifier).token
-			token.Bytes = []byte(name)
+			if name != "*" {
+				token.Bytes = []byte(name)
+			}
 		}
 	}
 }

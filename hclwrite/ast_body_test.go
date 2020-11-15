@@ -1643,6 +1643,33 @@ foo3 = res.name[0].baz
 foo4 = res.name[1].baz
 `,
 		},
+		{
+			Name: "traverse with glob in search and replacement",
+			Config: `foo = a.x + a.y * b.c
+bar = max(a.z, b.c)`,
+			OldVar: []string{"a", "*"},
+			NewVar: []string{"z", "*"},
+			Want: `foo = z.x + z.y * b.c
+bar = max(z.z, b.c)`,
+		},
+		{
+			Name: "traverse with glob in replacement",
+			Config: `foo = a.x + a.y * b.c
+bar = max(a.z, b.c)`,
+			OldVar: []string{"a", "x"},
+			NewVar: []string{"z", "*"},
+			Want: `foo = z.x + a.y * b.c
+bar = max(a.z, b.c)`,
+		},
+		{
+			Name: "traverse with in search",
+			Config: `foo = a.x + a.y * b.c
+bar = max(a.z, b.c)`,
+			OldVar: []string{"a", "*"},
+			NewVar: []string{"z", "z"},
+			Want: `foo = z.z + z.z * b.c
+bar = max(z.z, b.c)`,
+		},
 	}
 
 	for _, test := range tests {
