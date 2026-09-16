@@ -69,6 +69,40 @@ func parse(src []byte, filename string, start hcl.Pos) (*File, hcl.Diagnostics) 
 	return ret, diags
 }
 
+// parseExpr is similar to parse, but is for parsing an expression.
+func parseExpr(src []byte, filename string, start hcl.Pos) (*Expression, hcl.Diagnostics) {
+	expr, diags := hclsyntax.ParseExpression(src, filename, start)
+	if diags.HasErrors() {
+		return nil, diags
+	}
+
+	// To do our work here, we use the "native" tokens (those from hclsyntax)
+	// to match against source ranges in the AST, but ultimately produce
+	// slices from our sequence of "writer" tokens, which contain only
+	// *relative* position information that is more appropriate for
+	// transformation/writing use-cases.
+	nativeTokens, diags := hclsyntax.LexExpression(src, filename, start)
+	if diags.HasErrors() {
+		// should never happen, since we would've caught these diags in
+		// the first call above.
+		return nil, diags
+	}
+
+	// Remove the (synthetic) ending EOF token to avoid it being added up to the parsed Expression.
+	if len(nativeTokens) != 0 && nativeTokens[len(nativeTokens)-1].Type == hclsyntax.TokenEOF {
+		nativeTokens = nativeTokens[:len(nativeTokens)-1]
+	}
+	writerTokens := writerTokens(nativeTokens)
+
+	from := inputTokens{
+		nativeTokens: nativeTokens,
+		writerTokens: writerTokens,
+	}
+
+	node := parseExpression(expr, from)
+	return node.content.(*Expression), diags
+}
+
 type inputTokens struct {
 	nativeTokens hclsyntax.Tokens
 	writerTokens Tokens
@@ -462,7 +496,7 @@ func parseObjectConsExpr(nativeExpr *hclsyntax.ObjectConsExpr, from inputTokens)
 	return newNode(wrapExpr)
 }
 
-// parseObjectConsExpr parses an object-construct key expression.
+// parseObjectConsKeyExpr parses an object-construct key expression.
 // An object key is an Identifier or an Expression. In this context, a quoted
 // literal is functionally equivalent to an Identifier.
 func parseObjectConsKeyExpr(nativeExpr *hclsyntax.ObjectConsKeyExpr, from inputTokens) *node {
@@ -499,7 +533,7 @@ func parseObjectConsKeyExpr(nativeExpr *hclsyntax.ObjectConsKeyExpr, from inputT
 	return newNode(objectConsKeyExpr)
 }
 
-// parseObjectConsExpr is specifically interested in string literal expressions
+// parseTemplateExpr is specifically interested in string literal expressions
 // at this time.
 func parseTemplateExpr(nativeExpr *hclsyntax.TemplateExpr, from inputTokens) *node {
 	if nativeExpr.IsStringLiteral() {

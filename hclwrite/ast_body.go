@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2014, 2025
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 package hclwrite
@@ -152,6 +152,24 @@ func (b *Body) RemoveBlock(block *Block) bool {
 	return false
 }
 
+// SetAttribute either replaces the expression of an existing attribute
+// of the given name or adds a new attribute definition to the end of the block,
+// using the given expression.
+//
+// The return value is the attribute that was either modified in-place or
+// created.
+func (b *Body) SetAttribute(name string, expr *Expression) *Attribute {
+	attr := b.GetAttribute(name)
+	if attr != nil {
+		attr.expr = attr.expr.ReplaceWith(expr)
+	} else {
+		attr = newAttribute()
+		attr.init(name, expr)
+		b.appendItem(attr)
+	}
+	return attr
+}
+
 // SetAttributeRaw either replaces the expression of an existing attribute
 // of the given name or adds a new attribute definition to the end of the block,
 // using the given tokens verbatim as the expression.
@@ -159,17 +177,11 @@ func (b *Body) RemoveBlock(block *Block) bool {
 // The same caveats apply to this function as for NewExpressionRaw on which
 // it is based. If possible, prefer to use SetAttributeValue or
 // SetAttributeTraversal.
+//
+// The return value is the attribute that was either modified in-place or
+// created.
 func (b *Body) SetAttributeRaw(name string, tokens Tokens) *Attribute {
-	attr := b.GetAttribute(name)
-	expr := NewExpressionRaw(tokens)
-	if attr != nil {
-		attr.expr = attr.expr.ReplaceWith(expr)
-	} else {
-		attr := newAttribute()
-		attr.init(name, expr)
-		b.appendItem(attr)
-	}
-	return attr
+	return b.SetAttribute(name, NewExpressionRaw(tokens))
 }
 
 // SetAttributeValue either replaces the expression of an existing attribute
@@ -181,16 +193,7 @@ func (b *Body) SetAttributeRaw(name string, tokens Tokens) *Attribute {
 // The return value is the attribute that was either modified in-place or
 // created.
 func (b *Body) SetAttributeValue(name string, val cty.Value) *Attribute {
-	attr := b.GetAttribute(name)
-	expr := NewExpressionLiteral(val)
-	if attr != nil {
-		attr.expr = attr.expr.ReplaceWith(expr)
-	} else {
-		attr := newAttribute()
-		attr.init(name, expr)
-		b.appendItem(attr)
-	}
-	return attr
+	return b.SetAttribute(name, NewExpressionLiteral(val))
 }
 
 // SetAttributeTraversal either replaces the expression of an existing attribute
@@ -202,16 +205,7 @@ func (b *Body) SetAttributeValue(name string, val cty.Value) *Attribute {
 // The return value is the attribute that was either modified in-place or
 // created.
 func (b *Body) SetAttributeTraversal(name string, traversal hcl.Traversal) *Attribute {
-	attr := b.GetAttribute(name)
-	expr := NewExpressionAbsTraversal(traversal)
-	if attr != nil {
-		attr.expr = attr.expr.ReplaceWith(expr)
-	} else {
-		attr := newAttribute()
-		attr.init(name, expr)
-		b.appendItem(attr)
-	}
-	return attr
+	return b.SetAttribute(name, NewExpressionAbsTraversal(traversal))
 }
 
 // RemoveAttribute removes the attribute with the given name from the body.
