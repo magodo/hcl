@@ -1767,24 +1767,8 @@ func TestParseExpr(t *testing.T) {
 										Type: "ObjectConsKeyExpr",
 										Children: []TestTreeNode{
 											{
-												Type: "Expression",
-												Children: []TestTreeNode{
-
-													{
-														Type: "Traversal",
-														Children: []TestTreeNode{
-															{
-																Type: "TraverseName",
-																Children: []TestTreeNode{
-																	{
-																		Type: "identifier",
-																		Val:  "    hat",
-																	},
-																},
-															},
-														},
-													},
-												},
+												Type: "identifier",
+												Val:  "    hat",
 											},
 										},
 									},
@@ -1902,24 +1886,8 @@ func TestParseExpr(t *testing.T) {
 										Type: "ObjectConsKeyExpr",
 										Children: []TestTreeNode{
 											{
-												Type: "Expression",
-												Children: []TestTreeNode{
-
-													{
-														Type: "Traversal",
-														Children: []TestTreeNode{
-															{
-																Type: "TraverseName",
-																Children: []TestTreeNode{
-																	{
-																		Type: "identifier",
-																		Val:  "    hat",
-																	},
-																},
-															},
-														},
-													},
-												},
+												Type: "identifier",
+												Val:  "    hat",
 											},
 										},
 									},
@@ -2027,16 +1995,8 @@ func TestParseExpr(t *testing.T) {
 								{
 									Type: "ObjectConsKeyExpr",
 									Children: []TestTreeNode{{
-										Type: "Expression",
-										Children: []TestTreeNode{{
-											Type: "Traversal",
-											Children: []TestTreeNode{
-												{
-													Type:     "TraverseName",
-													Children: []TestTreeNode{{Type: "identifier", Val: "    hat"}},
-												},
-											},
-										}},
+										Type: "identifier",
+										Val:  "    hat",
 									}},
 								},
 								{Type: "Tokens", Val: " ="},
@@ -2055,22 +2015,7 @@ func TestParseExpr(t *testing.T) {
 														{
 															Type: "ObjectConsKeyExpr",
 															Children: []TestTreeNode{
-																{
-																	Type: "Expression",
-																	Children: []TestTreeNode{
-																		{
-																			Type: "Traversal",
-																			Children: []TestTreeNode{
-																				{
-																					Type: "TraverseName",
-																					Children: []TestTreeNode{
-																						{Type: "identifier", Val: "   style"},
-																					},
-																				},
-																			},
-																		},
-																	},
-																},
+																{Type: "identifier", Val: "   style"},
 															},
 														},
 														{Type: "Tokens", Val: " ="},
@@ -2092,13 +2037,7 @@ func TestParseExpr(t *testing.T) {
 														{
 															Type: "ObjectConsKeyExpr",
 															Children: []TestTreeNode{{
-																Type: "Expression",
-																Children: []TestTreeNode{{
-																	Type: "Traversal", Children: []TestTreeNode{{
-																		Type:     "TraverseName",
-																		Children: []TestTreeNode{{Type: "identifier", Val: "   color"}},
-																	}},
-																}},
+																Type: "identifier", Val: "   color",
 															}},
 														},
 														{Type: "Tokens", Val: " ="},
@@ -2135,18 +2074,7 @@ func TestParseExpr(t *testing.T) {
 								{
 									Type: "ObjectConsKeyExpr",
 									Children: []TestTreeNode{{
-										Type: "Expression",
-										Children: []TestTreeNode{
-											{
-												Type: "Traversal",
-												Children: []TestTreeNode{{
-													Type: "TraverseName",
-													Children: []TestTreeNode{
-														{Type: "identifier", Val: "    cat"},
-													},
-												}},
-											},
-										},
+										Type: "identifier", Val: "    cat",
 									}},
 								},
 								{Type: "Tokens", Val: " ="},
