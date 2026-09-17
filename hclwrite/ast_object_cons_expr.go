@@ -80,6 +80,17 @@ func (o *ObjectConsExpr) ValueFor(key string) *ObjectConsValue {
 	}
 }
 
+func (object *ObjectConsExpr) RemoveItem(key string) bool {
+	node := object.nodeFor(key)
+	if node == nil {
+		return false
+	}
+
+	node.Detach()
+	object.items.Remove(node)
+	return true
+}
+
 func (object *ObjectConsExpr) SetItem(key string, expr *Expression) (*ObjectConsKeyExpr, *ObjectConsValue) {
 	item := object.ItemFor(key)
 	if item != nil {
@@ -120,6 +131,21 @@ func (object *ObjectConsExpr) SetItemTraversal(key string, traversal hcl.Travers
 // The return value is the item that was either modified in-place or created.
 func (object *ObjectConsExpr) SetItemValue(key string, val cty.Value) (*ObjectConsKeyExpr, *ObjectConsValue) {
 	return object.SetItem(key, NewExpressionLiteral(val))
+}
+
+func (object *ObjectConsExpr) nodeFor(key string) *node {
+	for _, n := range object.items.List() {
+		if item, ok := n.content.(*ObjectConsItem); ok {
+			k := item.KeyObj()
+
+			maybeKey := k.String()
+			if maybeKey == key {
+				return n
+			}
+		}
+	}
+
+	return nil
 }
 
 // ObjectConsItem represents the content of a single item in an object-construct expression.
