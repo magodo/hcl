@@ -50,6 +50,78 @@ func TestObjectConsExprSetItemRaw(t *testing.T) {
 		want     Tokens
 	}{
 		{
+			`a = {}`,
+			"a",
+			"hat",
+			Tokens{
+				{
+					Type:         hclsyntax.TokenOQuote,
+					Bytes:        []byte(`"`),
+					SpacesBefore: 1,
+				},
+				{
+					Type:  hclsyntax.TokenQuotedLit,
+					Bytes: []byte(`bowler`),
+				},
+				{
+					Type:  hclsyntax.TokenCQuote,
+					Bytes: []byte(`"`),
+				},
+			},
+			Tokens{
+				{
+					Type:  hclsyntax.TokenIdent,
+					Bytes: []byte{'a'},
+				},
+				{
+					Type:         hclsyntax.TokenEqual,
+					Bytes:        []byte{'='},
+					SpacesBefore: 1,
+				},
+				{
+					Type:         hclsyntax.TokenOBrace,
+					Bytes:        []byte{'{'},
+					SpacesBefore: 1,
+				},
+				{
+					Type:  hclsyntax.TokenNewline,
+					Bytes: []byte("\n"),
+				},
+				{
+					Type:  hclsyntax.TokenIdent,
+					Bytes: []byte("hat"),
+				},
+				{
+					Type:         hclsyntax.TokenEqual,
+					Bytes:        []byte{'='},
+					SpacesBefore: 1,
+				},
+				{
+					Type:         hclsyntax.TokenOQuote,
+					Bytes:        []byte{'"'},
+					SpacesBefore: 1,
+				},
+				{
+					Type:  hclsyntax.TokenQuotedLit,
+					Bytes: []byte(`bowler`),
+				},
+				{
+					Type:  hclsyntax.TokenCQuote,
+					Bytes: []byte{'"'},
+				},
+				{
+					Type:         hclsyntax.TokenCBrace,
+					Bytes:        []byte{'}'},
+					SpacesBefore: 1,
+				},
+				{
+					Type:         hclsyntax.TokenEOF,
+					Bytes:        []byte{},
+					SpacesBefore: 0,
+				},
+			},
+		},
+		{
 			`a = {
 				hat = "derby", (cat) = "calico" }` + "\n",
 			"a",
@@ -178,6 +250,7 @@ func TestObjectConsExprSetItemRaw(t *testing.T) {
 				t.Fatal("attr nil")
 			}
 			expr := attr.Expr().AsObjectConsExpr()
+			expr.SetItemRaw(test.key, test.tokens)
 			expr.SetItemRaw(test.key, test.tokens)
 
 			got := f.BuildTokens(nil)
